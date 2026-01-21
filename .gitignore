@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+.env
+venv/
+.env/
+
+# Node / npm (нужен только для генерации VAPID‑ключей)
+node_modules/
+package-lock.json
+
+# VS Code
+.vscode/
