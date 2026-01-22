@@ -9,4 +9,20 @@
     <h1>Air Quality PWA (MVP)</h1>
     <p>Если вы видите этот текст, ваш фронтенд работает.</p>
 </body>
+<script>
+  // Проверяем, поддерживает ли браузер Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('Service Worker зарегистрирован с областью:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Регистрация Service Worker не удалась:', error);
+        });
+    });
+  } else {
+    console.warn('Service Worker не поддерживается этим браузером.');
+  }
+</script>
 </html>
