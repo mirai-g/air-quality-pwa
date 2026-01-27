@@ -35,7 +35,7 @@ if ('serviceWorker' in navigator) {
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
-    .replace(/-/g, '+')
+    .replace(/\-/g, '+')
     .replace(/_/g, '/');
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -55,23 +55,23 @@ document.getElementById('subscribeBtn').addEventListener('click', async () => {
     return;
   }
 
-  // Request notification permission
+  // 1. Request notification permission
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') {
-    statusEl.textContent = 'Notification permission denied.';
+    statusEl.textContent = 'Notification permission was denied.';
     return;
   }
 
-  // Get push subscription
+  // 2. Get push subscription
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array('BEOEWEA3tXPA3LRFcwLY7D6-pGzQENOAWqX_H3sJZ-Mgf9WtA8DeBaeGK1uloCNSYK6Aer-3NWv9HwGjiRQB7rI') // <-- insert your public key here
+    applicationServerKey: urlBase64ToUint8Array('BEOEWEA3tXPA3LRFcwLY7D6-pGzQENOAWqX_H3sJZ-Mgf9WtA8DeBaeGK1uloCNSYK6Aer-3NWv9HwGjiRQB7rI') // ← insert your public VAPID key here
   });
 
-  // Send subscription to backend
+  // 3. Send subscription to backend
   try {
-    const resp = await fetch('http://127.0.0.1:8000/api/subscribe', {
+    const resp = await fetch('/api/subscribe', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({city, subscription})
@@ -79,7 +79,7 @@ document.getElementById('subscribeBtn').addEventListener('click', async () => {
     if (resp.ok) {
       statusEl.textContent = `Subscribed! You’ll receive alerts for ${city}.`;
     } else {
-      statusEl.textContent = 'Error saving subscription (server responded with an error).';
+      statusEl.textContent = 'Error saving subscription (server did not respond).';
     }
   } catch (e) {
     console.error(e);
