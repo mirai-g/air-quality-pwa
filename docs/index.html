@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,11 +11,11 @@
 </head>
 <body>
 <h1>Air Quality PWA (MVP)</h1>
-<p>Если вы видите этот текст, ваш фронтенд работает.</p>
+<p>If you see this text, the front‑end is working.</p>
 
-<label for="city">Город:</label>
-<input type="text" id="city" placeholder="например, London">
-<button id="subscribeBtn">Подписаться на уведомления</button>
+<label for="city">City:</label>
+<input type="text" id="city" placeholder="e.g., London">
+<button id="subscribeBtn">Subscribe to notifications</button>
 
 <div id="status"></div>
 
@@ -35,7 +35,7 @@ if ('serviceWorker' in navigator) {
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
+    .replace(/-/g, '+')
     .replace(/_/g, '/');
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -51,39 +51,39 @@ document.getElementById('subscribeBtn').addEventListener('click', async () => {
   const city = document.getElementById('city').value.trim();
 
   if (!city) {
-    statusEl.textContent = 'Введите название города.';
+    statusEl.textContent = 'Please enter a city name.';
     return;
   }
 
-  // 1. Запросить разрешение
+  // Request notification permission
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') {
-    statusEl.textContent = 'Разрешение на уведомления отклонено.';
+    statusEl.textContent = 'Notification permission denied.';
     return;
   }
 
-  // 2. Получить push‑подписку
+  // Get push subscription
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array('BEOEWEA3tXPA3LRFcwLY7D6-pGzQENOAWqX_H3sJZ-Mgf9WtA8DeBaeGK1uloCNSYK6Aer-3NWv9HwGjiRQB7rI') // ← сюда вставьте публичный ключ
+    applicationServerKey: urlBase64ToUint8Array('BEOEWEA3tXPA3LRFcwLY7D6-pGzQENOAWqX_H3sJZ-Mgf9WtA8DeBaeGK1uloCNSYK6Aer-3NWv9HwGjiRQB7rI') // <-- insert your public key here
   });
 
-  // 3. Отправить подписку на бекенд
+  // Send subscription to backend
   try {
-    const resp = await fetch('/api/subscribe', {
+    const resp = await fetch('http://127.0.0.1:8000/api/subscribe', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({city, subscription})
     });
     if (resp.ok) {
-      statusEl.textContent = `Подписка оформлена! Вы будете получать уведомления о ${city}.`;
+      statusEl.textContent = `Subscribed! You’ll receive alerts for ${city}.`;
     } else {
-      statusEl.textContent = 'Ошибка при сохранении подписки (сервер не отвечает).';
+      statusEl.textContent = 'Error saving subscription (server responded with an error).';
     }
   } catch (e) {
     console.error(e);
-    statusEl.textContent = 'Сбой сети при отправке подписки.';
+    statusEl.textContent = 'Network error while sending subscription.';
   }
 });
 </script>
